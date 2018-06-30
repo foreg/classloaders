@@ -1,6 +1,8 @@
 package ru.sbt.task2;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 
 /**
  * Данный класслоадер умеет загружать классы из файлов дешифрую их. Ваша задача переопределить метод findClass().
@@ -18,6 +20,26 @@ public class EncryptedClassLoader extends ClassLoader {
         super( parent );
         this.key = key;
         this.dir = dir;
+    }
+
+    @Override
+    protected Class<?> findClass(String name) throws ClassNotFoundException {
+        int offset = 0;
+        for (char c : key.toCharArray()) {
+            offset += c;
+        }
+        offset %= 255;
+        try {
+            byte[] bytes = Files.readAllBytes(dir.toPath());
+            for (int i = 0; i < bytes.length; i++) {
+                bytes[i] = (byte)((bytes[i] + offset) % 255);
+            }
+            return defineClass(name, bytes, 0, bytes.length);
+        }
+        catch ( IOException e ) {
+            e.printStackTrace(System.out);
+        }
+        return super.findClass(name);
     }
 }
 

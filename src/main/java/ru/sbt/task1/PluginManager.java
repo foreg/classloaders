@@ -2,6 +2,11 @@ package ru.sbt.task1;
 
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Map;
+
 /**
  * Ваша задача написать загрузчик плагинов в вашу систему. Допустим вы пишите свой браузер и хотите,
  * чтобы люди имели имели возможность писать плагины для него.
@@ -14,13 +19,12 @@ import sun.reflect.generics.reflectiveObjects.NotImplementedException;
  */
 public class PluginManager {
     private final String pluginRootDirectory;
-
     public PluginManager( String pluginRootDirectory ) {
         this.pluginRootDirectory = pluginRootDirectory;
     }
 
-    public Plugin load( String pluginName, String pluginClassName ) {
-        //todo
-        throw new NotImplementedException();
+    public Plugin load( String pluginName, String pluginClassName ) throws MalformedURLException, ClassNotFoundException, IllegalAccessException, InstantiationException{
+        URLClassLoader urlClassLoader = new URLClassLoader(new URL[]{new URL(pluginRootDirectory  + pluginName )});
+        return (Plugin) urlClassLoader.loadClass(pluginClassName).newInstance();
     }
 }
